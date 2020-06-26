@@ -20,5 +20,5 @@ echo "Updated appID: $updated_appid"
 
 # ios/Runner.xcodeproj/project.pbxproj
 sed -i.bak \
-  -E "s/(PRODUCT_BUNDLE_IDENTIFIER = )\"[_A-Za-z0-9\.\-]+\"/\1\"${BUNDLE_ID}\"/g; s/(DEVELOPMENT_TEAM = )[\"A-Z0-9]+/\1${TEAM_ID}/g; s/(PROVISIONING_PROFILE_SPECIFIER = )[\"\-_A-Za-z0-9 ]+/\1\"${PROV_PROFILE_SPECIFIER}\"/g" \
+  -E "s/(PRODUCT_BUNDLE_IDENTIFIER = )\"[_A-Za-z0-9\.\-]+\"/\1\"${IOS_BUNDLE_ID}\"/g; s/(DEVELOPMENT_TEAM = )[\"A-Z0-9]+/\1${IOS_TEAM_ID}/g" \
   ios/Runner.xcodeproj/project.pbxproj
