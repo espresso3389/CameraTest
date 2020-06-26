@@ -124,8 +124,8 @@ jobs:
         IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
         CERT_SERIAL_NUMBER: ${{ env.CERT_SERIAL_NUMBER }}
 
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v2
+    # - name: Setup tmate session
+    #   uses: mxschmitt/action-tmate@v2
 
     - name: Clean build env (Xcode/CocoaPods)...
       run: |
