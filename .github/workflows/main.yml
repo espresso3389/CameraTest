@@ -138,10 +138,11 @@ jobs:
 
     - name: Upload to AppStoreConnect
       env:
-        APP_ID: ${{ env.ios_bundle_id }}
+        IOS_BUNDLE_ID: ${{ env.ios_bundle_id }}
         IOS_APPSTORECONNECT_TEAMID: ${{ env.ios_team_id }}
         IOS_APPSTORECONNECT_USERID: ${{ secrets.IOS_APPSTORECONNECT_USERID }}
         IOS_APPSTORECONNECT_PASSWORD: ${{ secrets.IOS_APPSTORECONNECT_PASSWORD }}
+        IOS_PROVISIONING_PROFILE_UUID: ${{ env.ios_provprof_specifier }}
       run: ../scripts/ios_archive.sh
       working-directory: ./ios
     

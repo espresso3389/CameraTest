@@ -31,8 +31,8 @@ cat > ${exportOptionsPlist} <<EOS
   <string>app-store</string>
   <key>provisioningProfiles</key>
   <dict>
-    <key>${APP_ID}</key>
-    <string>${PROVISIONING_PROFILE_ID}</string>
+    <key>${IOS_BUNDLE_ID}</key>
+    <string>${IOS_PROVISIONING_PROFILE_UUID}</string>
   </dict>
 </dict>
 </plist>
