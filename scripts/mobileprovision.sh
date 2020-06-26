@@ -18,3 +18,8 @@ fi
 
 mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
 mv $PROVPROF_TMP ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
+
+# ios/Runner.xcodeproj/project.pbxproj
+sed -i.bak \
+  -E "s/(PROVISIONING_PROFILE_SPECIFIER = )\".*\"/\1\"${UUID}\"/g" \
+  ios/Runner.xcodeproj/project.pbxproj
