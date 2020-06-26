@@ -26,62 +26,62 @@ on:
     - '.editorconfig'
 
 jobs:
-  #
-  # Build for Android
-  #
-  build_android:
-    runs-on: ubuntu-latest
-    #runs-on: [self-hosted, linux, x64]
-    timeout-minutes: 20
+  # #
+  # # Build for Android
+  # #
+  # build_android:
+  #   runs-on: ubuntu-latest
+  #   #runs-on: [self-hosted, linux, x64]
+  #   timeout-minutes: 20
 
-    steps:
-    - uses: actions/checkout@v2
+  #   steps:
+  #   - uses: actions/checkout@v2
 
-    - name: Install Flutter toolchains
-      run: ./scripts/install_flutter.sh
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # optional
+  #   - name: Install Flutter toolchains
+  #     run: ./scripts/install_flutter.sh
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # optional
 
-    - name: Create buildConfig.dart
-      run: ./scripts/version.sh
+  #   - name: Create buildConfig.dart
+  #     run: ./scripts/version.sh
     
-    - name: Customization for branch
-      run: ./scripts/customize.sh
-      env:
-        ANDROID_APP_ID: ${{ secrets.ANDROID_APP_ID }}
-        IOS_BUNDLE_ID: ${{ secrets.IOS_BUNDLE_ID }}
-        IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
-        IOS_PROV_PROFILE_SPECIFIER: ${{ secrets.IOS_PROV_PROFILE_SPECIFIER }}
+  #   - name: Customization for branch
+  #     run: ./scripts/customize.sh
+  #     env:
+  #       ANDROID_APP_ID: ${{ secrets.ANDROID_APP_ID }}
+  #       IOS_BUNDLE_ID: ${{ secrets.IOS_BUNDLE_ID }}
+  #       IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+  #       IOS_PROV_PROFILE_SPECIFIER: ${{ secrets.IOS_PROV_PROFILE_SPECIFIER }}
 
-    - name: Generate publish.properties (master)
-      env:
-        ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-        ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        ANDROID_SERVICEACCOUNT_JSON_BASE64: ${{ secrets.ANDROID_SERVICEACCOUNT_JSON_BASE64 }}
-        ANDROID_UPLOAD_TRACK: ${{ secrets.ANDROID_UPLOAD_TRACK }}
-      run: ./scripts/generate_pubprops.sh
+  #   - name: Generate publish.properties (master)
+  #     env:
+  #       ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+  #       ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+  #       ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+  #       ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+  #       ANDROID_SERVICEACCOUNT_JSON_BASE64: ${{ secrets.ANDROID_SERVICEACCOUNT_JSON_BASE64 }}
+  #       ANDROID_UPLOAD_TRACK: ${{ secrets.ANDROID_UPLOAD_TRACK }}
+  #     run: ./scripts/generate_pubprops.sh
 
-    - name: Building Android appbundle
-      run: flutter build appbundle --build-name $app_ver --build-number $app_rev --verbose
+  #   - name: Building Android appbundle
+  #     run: flutter build appbundle --build-name $app_ver --build-number $app_rev --verbose
 
-    - name: Upload to Google Play
-      run: ./gradlew publishBundle
-      working-directory: ./android
+  #   - name: Upload to Google Play
+  #     run: ./gradlew publishBundle
+  #     working-directory: ./android
     
-    - name: Slack notification
-      uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        author_name: GitHub/CameraTest Android
-        fields: repo,commit,message,author # default: repo,commit
-        text: CameraTest Android ${{ env.app_build_name }} build ${{ job.status }}.
-        if_mention: always # success,failure,cancelled
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # optional
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
-      if: always() # Pick up events even if the job fails or is canceled.
+  #   - name: Slack notification
+  #     uses: 8398a7/action-slack@v3
+  #     with:
+  #       status: ${{ job.status }}
+  #       author_name: GitHub/CameraTest Android
+  #       fields: repo,commit,message,author # default: repo,commit
+  #       text: CameraTest Android ${{ env.app_build_name }} build ${{ job.status }}.
+  #       if_mention: always # success,failure,cancelled
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # optional
+  #       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
+  #     if: always() # Pick up events even if the job fails or is canceled.
 
   #
   # Build for iOS
@@ -123,6 +123,9 @@ jobs:
       env:
         IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
         CERT_SERIAL_NUMBER: ${{ env.CERT_SERIAL_NUMBER }}
+
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v2
 
     - name: Clean build env (Xcode/CocoaPods)...
       run: |
