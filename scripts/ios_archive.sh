@@ -18,7 +18,7 @@ xcodebuild \
 -configuration Release archive \
 -archivePath ${archiveFileName} \
 -allowProvisioningUpdates \
-DEVELOPMENT_TEAM=$ITUNESCONNECT_TEAMID \
+DEVELOPMENT_TEAM=$IOS_APPSTORECONNECT_TEAMID \
 || error_and_die "xcodebuild failed."
 
 # generate exportOptions.plist
@@ -47,7 +47,7 @@ xcodebuild \
 -exportPath ${distdir} \
 -exportOptionsPlist ${exportOptionsPlist} \
 -allowProvisioningUpdates \
-DEVELOPMENT_TEAM=$ITUNESCONNECT_TEAMID \
+DEVELOPMENT_TEAM=$IOS_APPSTORECONNECT_TEAMID \
 || error_and_die "xcodebuild -exportArchive failed."
 
 ### locating *.ipa file
@@ -59,4 +59,4 @@ echo "IPA file: ${ipafile}"
 
 ### uploading or verification-only
 echo "Verifying/Uploading ${ipafile}..."
-xcrun altool --upload-app -f "${ipafile}" -u "${ITUNESCONNECT_USERID}" -p "${ITUNESCONNECT_PASSWORD}"
+xcrun altool --upload-app -f "${ipafile}" -u "${IOS_APPSTORECONNECT_USERID}" -p "${IOS_APPSTORECONNECT_PASSWORD}"
