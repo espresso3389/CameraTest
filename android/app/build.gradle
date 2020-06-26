@@ -23,10 +23,30 @@ if (flutterVersionName == null) {
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: "com.github.triplet.play"
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
+def releaseProps = new Properties()
+def releasePropsFile = rootProject.file('publish.properties')
+def isPublishing = releasePropsFile.exists()
+if (isPublishing) {
+    releaseProps.load(new FileInputStream(releasePropsFile))
+} else {
+    releaseProps['storeFile'] = rootProject.file('key.properties file not found; Set your keystroke to build with release config')
+}
+
+def appVersionCode = '1'
+if (releaseProps['appVersionCode']) {
+    appVersionCode = releaseProps['appVersionCode']
+}
+def appBuildName = "1.0-testing"
+if (releaseProps['appBuildName']) {
+    appBuildName = releaseProps['appBuildName']
+}
 
 android {
     compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -39,18 +59,36 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "jp.espresso3389.CameraTest"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 28
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
-
+    signingConfigs {
+        release {
+            keyAlias releaseProps['keyAlias']
+            keyPassword releaseProps['keyPassword']
+            storeFile file(releaseProps['storeFile'])
+            storePassword releaseProps['storePassword']
+        }
+    }
+    play {
+        enabled = isPublishing
+        serviceAccountCredentials = isPublishing ? file(releaseProps['uploadKeyJson']) : null
+        track = isPublishing ? releaseProps['uploadTrack'] : 'dummy'
+    }
     buildTypes {
+        customDebugTypes {
+            debuggable true
+        }
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
+    }
+    lintOptions {
+        abortOnError false
     }
 }
 
