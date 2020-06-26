@@ -12,7 +12,7 @@ echo "::set-env name=ios_provising_profile_id::$IOS_PROV_PROFILE_SPECIFIER"
 
 # android/app/build.gradle
 sed -i.bak \
-  -E "s/(applicationId )\"[_A-Za-z0-9\.]+\"/\1\"${APPLICATION_ID}\"/g" \
+  -E "s/(applicationId )\"[_A-Za-z0-9\.]+\"/\1\"${ANDROID_APP_ID}\"/g" \
   android/app/build.gradle
 
 ###
