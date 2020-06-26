@@ -6,9 +6,8 @@ if [[ "$app_branch" == "" ]]; then
 fi
 
 echo "::set-env name=android_app_id::$ANDROID_APP_ID"
-echo "::set-env name=ios_app_id::$IOS_BUNDLE_ID"
+echo "::set-env name=ios_bundle_id::$IOS_BUNDLE_ID"
 echo "::set-env name=ios_team_id::$IOS_TEAM_ID"
-echo "::set-env name=ios_provising_profile_id::$IOS_PROV_PROFILE_SPECIFIER"
 
 # android/app/build.gradle
 sed -i.bak \
