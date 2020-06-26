@@ -35,8 +35,3 @@ echo "Bundle ID:     $bundle_id"
 echo "Team ID:       $team_id"
 echo "Certificate:   \"$cert_name\""
 echo "Cert. S/N:     $cert_id"
-
-echo ""
-
-echo "IOS_PROVISIONING_PROFILE_BASE64:"
-base64 < $mopro
