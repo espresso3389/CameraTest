@@ -1,5 +1,7 @@
 # CameraTest
 
+![CI](https://github.com/espresso3389/CameraTest/workflows/CI/badge.svg)
+
 The purpose of the project is to evaluate the video recording quality of various phone cameras.
 
 # Building
