@@ -2,7 +2,7 @@
 
 PROVPROF_TMP=$GITHUB_WORKSPACE/tmp.mobileprovision
 
-echo "$IOS_PROVISIONING_PROFILE_BASE64" | openssl base64 -d -A -out $PROVPROF_TMP
+echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 -d > $PROVPROF_TMP
 UUID=`grep UUID -A1 -a $PROVPROF_TMP | grep -io "[-A-Z0-9]\{36\}"`
 echo "Provisioning profile UUID: $UUID"
 
