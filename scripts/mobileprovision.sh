@@ -21,6 +21,5 @@ mv $PROVPROF_TMP ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovi
 
 # ios/Runner.xcodeproj/project.pbxproj
 sed -i.bak \
-  -E "s/(PROVISIONING_PROFILE_SPECIFIER = )\".*\"/\1\"${UUID}\"/g" \
-  -E "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" \
+  -E "s/(PROVISIONING_PROFILE_SPECIFIER = )\".*\"/\1\"${UUID}\"/g; s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" \
   ios/Runner.xcodeproj/project.pbxproj
