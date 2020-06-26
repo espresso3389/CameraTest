@@ -63,9 +63,6 @@ jobs:
         ANDROID_UPLOAD_TRACK: ${{ secrets.ANDROID_UPLOAD_TRACK }}
       run: ./scripts/generate_pubprops.sh
 
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v2
-
     - name: Building Android appbundle
       run: flutter build appbundle --build-name $app_ver --build-number $app_rev --verbose
 
