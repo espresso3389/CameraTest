@@ -56,12 +56,15 @@ jobs:
     - name: Generate publish.properties (master)
       env:
         ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-        ANDROID_KEYSTORE_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         ANDROID_SERVICEACCOUNT_JSON_BASE64: ${{ secrets.ANDROID_SERVICEACCOUNT_JSON_BASE64 }}
-        ANDROID_UPLOAD_TRACK: internal
+        ANDROID_UPLOAD_TRACK: ${{ secrets.ANDROID_UPLOAD_TRACK }}
       run: ./scripts/generate_pubprops.sh
+
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v2
 
     - name: Building Android appbundle
       run: flutter build appbundle --build-name $app_ver --build-number $app_rev --verbose
