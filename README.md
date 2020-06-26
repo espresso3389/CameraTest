@@ -34,6 +34,12 @@ Name               | Description
 `IOS_APPSTORECONNECT_USERID`      | Apple ID used to upload the archive to AppStoreConnect.
 `IOS_APPSTORECONNECT_PASSWORD`    | Password for the Apple ID.
 
+### Others
+
+Name               | Description
+-------------------|------------------------
+`SLACK_WEBHOOK`    | For Slack notification.
+
 ### Checking configuration of the project
 
 You can use `scripts/find_mobileprovision.sh` to see the configuration. It should be used after successful build of the app. Only the argument to the command is a part of bundle ID of the app.
@@ -63,3 +69,27 @@ On Mac, you don't have `-w0` option. Just remove the option:
 ```
 base64 < target_file
 ```
+
+## Changes on Flutter default/generated files
+
+- `.github/workflows/main.yml` (added)
+    - GitHub Actions workflow definition
+- `android/app/build.gradle` (modified)
+    - Add actual logic to upload the build result
+    - Importing signing/upload configs from auto-generated `android/publish.properties`
+    - `android/publish.properties` will be updated by `scripts/generate_pubprops.sh`
+- `android/build.gradle` (modified)
+    - [Gradle Play Publisher (com.github.triplet.gradle:play-publisher)](https://github.com/Triple-T/gradle-play-publisher) to automatically upload appbundle to Google Play
+- `android/gradle/wrapper/gradle-wrapper.properties` (modified)
+    - Gradle Play Publisher requires newer gradle (`distributionUrl=https\://services.gradle.org/distributions/gradle-6.3-all.zip`)
+- `ios/Runner.xcodeproj/project.pbxproj` (modified)
+    - For "Release", use "Manual" signing rather than Xcode automatic signing
+    - `CODE_SIGN_STYLE`, `DEVELOPMENT_TEAM`, and, `PROVISIONING_PROFILE_SPECIFIER` will be working as placeholders for the values defined in secrets
+    - Will be updated by `scripts/customize.sh` and `scripts/mobileprovision.sh`.
+- `lib/buildConfig.dart` (added)
+    - Placeholder for build-time configuration variables:
+        - `isDebug`, `appCommit`, `appBranch`, `appVersion`, `flutterVersion`, `flutterFullVersionInfo`
+        - Will be updated by `scripts/version.sh`
+- `scripts/` (added)
+    - Shell scripts that automate the build
+    - Installing Flutter master (Wow!, but it can be fastest on clone) by `scripts/install_flutter.sh`
