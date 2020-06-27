@@ -72,24 +72,24 @@ base64 < target_file
 
 ## Changes on Flutter default/generated files
 
-- `.github/workflows/main.yml` (added)
+- [.github/workflows/main.yml](https://github.com/espresso3389/CameraTest/blob/master/.github/workflows/main.yml) (added)
     - GitHub Actions workflow definition
-- `android/app/build.gradle` (modified)
+- [android/app/build.gradle](https://github.com/espresso3389/CameraTest/blob/master/android/app/build.gradle) (modified)
     - Add actual logic to upload the build result
-    - Importing signing/upload configs from auto-generated `android/publish.properties`
-    - `android/publish.properties` will be updated by `scripts/generate_pubprops.sh`
-- `android/build.gradle` (modified)
+    - Importing signing/upload configs from auto-generated [android/publish.properties](https://github.com/espresso3389/CameraTest/blob/master/android/publish.properties)
+    - [android/publish.properties](https://github.com/espresso3389/CameraTest/blob/master/android/publish.properties) will be updated by [scripts/generate_pubprops.sh](https://github.com/espresso3389/CameraTest/blob/master/scripts/generate_pubprops.sh)
+- [android/build.gradle](https://github.com/espresso3389/CameraTest/blob/master/android/build.gradle) (modified)
     - [Gradle Play Publisher (com.github.triplet.gradle:play-publisher)](https://github.com/Triple-T/gradle-play-publisher) to automatically upload appbundle to Google Play
-- `android/gradle/wrapper/gradle-wrapper.properties` (modified)
+- [android/gradle/wrapper/gradle-wrapper.properties](https://github.com/espresso3389/CameraTest/blob/master/android/gradle/wrapper/gradle-wrapper.properties) (modified)
     - Gradle Play Publisher requires newer gradle (`distributionUrl=https\://services.gradle.org/distributions/gradle-6.3-all.zip`)
-- `ios/Runner.xcodeproj/project.pbxproj` (modified)
+- [ios/Runner.xcodeproj/project.pbxproj](https://github.com/espresso3389/CameraTest/blob/master/ios/Runner.xcodeproj/project.pbxproj) (modified)
     - For "Release", use "Manual" signing rather than Xcode automatic signing
-    - `CODE_SIGN_STYLE`, `DEVELOPMENT_TEAM`, and, `PROVISIONING_PROFILE_SPECIFIER` will be working as placeholders for the values defined in secrets
-    - Will be updated by `scripts/customize.sh` and `scripts/mobileprovision.sh`.
-- `lib/buildConfig.dart` (added)
+    - [CODE_SIGN_STYLE](https://github.com/espresso3389/CameraTest/blob/master/CODE_SIGN_STYLE), [DEVELOPMENT_TEAM](https://github.com/espresso3389/CameraTest/blob/master/DEVELOPMENT_TEAM), and, [PROVISIONING_PROFILE_SPECIFIER](https://github.com/espresso3389/CameraTest/blob/master/PROVISIONING_PROFILE_SPECIFIER) will be working as placeholders for the values defined in secrets
+    - Will be updated by [scripts/customize.sh](https://github.com/espresso3389/CameraTest/blob/master/scripts/customize.sh) and [scripts/mobileprovision.sh](https://github.com/espresso3389/CameraTest/blob/master/scripts/mobileprovision.sh).
+- [lib/buildConfig.dart](https://github.com/espresso3389/CameraTest/blob/master/lib/buildConfig.dart) (added)
     - Placeholder for build-time configuration variables:
-        - `isDebug`, `appCommit`, `appBranch`, `appVersion`, `flutterVersion`, `flutterFullVersionInfo`
-        - Will be updated by `scripts/version.sh`
-- `scripts/` (added)
+        - [isDebug](https://github.com/espresso3389/CameraTest/blob/master/isDebug), [appCommit](https://github.com/espresso3389/CameraTest/blob/master/appCommit), [appBranch](https://github.com/espresso3389/CameraTest/blob/master/appBranch), [appVersion](https://github.com/espresso3389/CameraTest/blob/master/appVersion), [flutterVersion](https://github.com/espresso3389/CameraTest/blob/master/flutterVersion), [flutterFullVersionInfo](https://github.com/espresso3389/CameraTest/blob/master/flutterFullVersionInfo)
+        - Will be updated by [scripts/version.sh](https://github.com/espresso3389/CameraTest/blob/master/scripts/version.sh)
+- [scripts/](https://github.com/espresso3389/CameraTest/blob/master/scripts/) (added)
     - Shell scripts that automate the build
-    - Installing Flutter master (Wow!, but it can be fastest on clone) by `scripts/install_flutter.sh`
+    - Installing Flutter master (Wow!, but it can be fastest on clone) by [scripts/install_flutter.sh](https://github.com/espresso3389/CameraTest/blob/master/scripts/install_flutter.sh)
