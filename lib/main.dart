@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' as io;
 import 'dart:io';
 
 import 'package:camera/camera.dart';
@@ -40,8 +39,11 @@ class _CameraTestPageState extends State<CameraTestPage> {
   double aspectRatio = 3 / 4;
   bool isRecording = false;
   File recTempFile;
-  Timer statTimer;
-  final stats = ValueNotifier<String>('');
+  Timer procTimer;
+  final messages = ValueNotifier<String>('');
+  final fileSize = ValueNotifier<int>(0);
+  final bytesPerSec = ValueNotifier<double>(0);
+  final movieDuration = ValueNotifier<Duration>(Duration.zero);
 
   @override
   void initState() {
@@ -52,40 +54,126 @@ class _CameraTestPageState extends State<CameraTestPage> {
   @override
   void dispose() {
     controller?.dispose();
-    stats.dispose();
+    messages.dispose();
+    fileSize.dispose();
+    bytesPerSec.dispose();
+    movieDuration.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Camera Test'),
-        actions: [
-          IconButton(icon: Icon(isRecording ? Icons.stop :  Icons.fiber_manual_record), onPressed: () => recordOrStop(!isRecording),),
-          IconButton(icon: Icon(Icons.play_arrow), onPressed: () => play(),),
-        ],
+      body: SafeArea(
+        child: Stack(
+          children: [
+            controller?.value?.isInitialized != true
+            ? Container(width: double.infinity, height: double.infinity, color: Colors.black)
+            : ClipRect(
+                child: Transform.scale(
+                  scale: 1 / controller.value.aspectRatio,
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: controller.value.aspectRatio,
+                      child: CameraPreview(controller),
+                    ),
+                  ),
+                ),
+              ),
+            Column(
+              children: [
+                Container(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: IconButton(icon: Icon(Icons.switch_camera), color: Colors.white, onPressed: () => switchCamera()),
+                ),
+                Expanded(child: Container()),
+                Container(
+                  padding: EdgeInsets.all(8),
+                  color: Colors.black54,
+                  margin: EdgeInsets.all(4),
+                  child: Column(children: [
+                    SizedBox(
+                      height: 70,
+                      child: ValueListenableBuilder<String>(
+                        valueListenable: messages,
+                        builder: (context, stats, child) {
+                          return Text(stats, style: Theme.of(context).textTheme.headline5.copyWith(color: Colors.white));
+                        }
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                      _meter<int>(value: fileSize, unit: 'MB', val2str: (bytes) => (bytes / 1024 / 1024).toStringAsFixed(1)),
+                      _meter<double>(value: bytesPerSec, unit: 'MB/s', val2str: (bps) => (bps / 1024 / 1024).toStringAsFixed(1)),
+                      _meter<Duration>(value: movieDuration, unit: 'sec.', val2str: (d) => (d.inMilliseconds / 1000).toStringAsFixed(1))
+                    ],),
+                  ]),
+                ),
+                Container(
+                  margin: EdgeInsets.all(4),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: controller?.value?.isRecordingVideo == true ? null : RaisedButton(
+                      child: Text('撮影開始', style: Theme.of(context).textTheme.headline5.copyWith(color: Colors.white),),
+                      color: Colors.green,
+                      onPressed: controller?.value?.isRecordingVideo != true ? () => test() : null),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      )
+    );
+  }
+
+  static Widget _fullscreenCameraPreview(BuildContext context, CameraController controller) {
+    // get screen size
+    final size = MediaQuery.of(context).size;
+
+    if (controller?.value?.isInitialized != true) {
+      return Container(width: size.width, height: size.height, color: Colors.black,);
+    }
+
+    // calculate scale for aspect ratio widget
+    var scale = controller.value.aspectRatio / size.aspectRatio;
+
+    // check if adjustments are needed...
+    if (controller.value.aspectRatio < size.aspectRatio) {
+      scale = 1 / scale;
+    }
+
+    return Transform.scale(
+      scale: scale,
+      child: Center(
+        child: AspectRatio(
+          aspectRatio: controller.value.aspectRatio,
+          child: CameraPreview(controller),
+        ),
       ),
-      body: Column(
-        children: [
-          AspectRatio(
-            aspectRatio: aspectRatio,
-            child: controller?.value?.isInitialized == true
-            ? CameraPreview(controller)
-            : Container(width: 10, height: 10 * aspectRatio)),
-          ValueListenableBuilder<String>(
-            valueListenable: stats,
-            builder: (context, stats, child) {
-              return Text(stats);
-            }
-          )
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => switchCamera(),
-        tooltip: 'Switch Camera',
-        child: Icon(Icons.switch_camera),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+
+  Widget _meter<T>({ValueNotifier<T> value, String unit, String Function(T) val2str}) {
+    return ValueListenableBuilder<T>(
+      valueListenable: value,
+      builder: (context, v, child) {
+        return Container(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                child: Text(val2str(v), style: Theme.of(context).textTheme.headline3.copyWith(color: Colors.white), textAlign: TextAlign.right,)
+              ),
+              Container(
+                padding: EdgeInsets.only(left: 2, bottom: 6),
+                child: Text(unit, style: TextStyle(color: Colors.white70)))
+            ],
+          ),
+        );
+      }
     );
   }
 
@@ -104,9 +192,10 @@ class _CameraTestPageState extends State<CameraTestPage> {
   }
 
   Future<void> setCamera(CameraDescription description) async {
+    await recordOrStop(false);
     await controller?.dispose();
     if (description != null) {
-      controller = CameraController(description, ResolutionPreset.low, enableAudio: false);
+      controller = CameraController(description, ResolutionPreset.medium, enableAudio: false);
       await controller.initialize();
       aspectRatio = controller.value.aspectRatio;
     } else {
@@ -117,23 +206,42 @@ class _CameraTestPageState extends State<CameraTestPage> {
     }
   }
 
+  Future<void> test() async {
+    await recordOrStop(true);
+      final start = DateTime.now();
+      procTimer = Timer.periodic(Duration(milliseconds: 300), (timer) async {
+        final t = DateTime.now().difference(start);
+        final limitDur = Duration(seconds: 20);
+        final toStop = t > limitDur;
+        if (toStop) {
+          procTimer?.cancel();
+        }
+
+        if (toStop) {
+          // 撮影終了; チェック画面に遷移
+          procTimer?.cancel();
+          await recordOrStop(false);
+          await Navigator.of(context).push(MaterialPageRoute(builder: (context) => CheckVideoPage(movieFile: recTempFile)));
+          return;
+        }
+
+        final s = await recTempFile.stat();
+        messages.value = '身分証をおでこの部分にかざすようにしてください';
+        fileSize.value = s.size;
+        bytesPerSec.value = s.size * 1000 / t.inMilliseconds;
+        movieDuration.value = t;
+
+      });
+  }
+
   Future<void> recordOrStop(bool recording) async {
-    if (controller.value.isRecordingVideo == recording) {
+    if (controller?.value == null || controller.value.isRecordingVideo == recording) {
       return;
     }
     if (recording) {
       try { await recTempFile.delete(); } catch (e) {}
       await controller.startVideoRecording(recTempFile.path);
-      final start = DateTime.now();
-      statTimer = Timer.periodic(Duration(milliseconds: 300), (timer) async {
-        final s = await recTempFile.stat();
-        final size = s.size / 1024 / 1024;
-        final t = DateTime.now().difference(start).inMicroseconds / 1000 / 1000;
-        final rate = size / t;
-        stats.value = '${size.toStringAsFixed(2)} MB, ${rate.toStringAsFixed(2)} MB/s';
-      });
     } else {
-      statTimer?.cancel();
       await controller.stopVideoRecording();
     }
     isRecording = recording;
@@ -141,23 +249,19 @@ class _CameraTestPageState extends State<CameraTestPage> {
       setState(() {});
     }
   }
-
-  Future<void> play() async {
-    await recordOrStop(false);
-    await Navigator.of(context).push(MaterialPageRoute(builder: (context) => VideoPlayerPage(movieFile: recTempFile)));
-  }
 }
-class VideoPlayerPage extends StatefulWidget {
+class CheckVideoPage extends StatefulWidget {
   @override
-  _VideoPlayerPageState createState() => _VideoPlayerPageState();
+  _CheckVideoPageState createState() => _CheckVideoPageState();
 
   final File movieFile;
 
-  VideoPlayerPage({this.movieFile});
+  CheckVideoPage({this.movieFile});
 }
 
-class _VideoPlayerPageState extends State<VideoPlayerPage> {
+class _CheckVideoPageState extends State<CheckVideoPage> {
   VideoPlayerController _controller;
+  bool flipLr = true;
 
   @override
   void initState() {
@@ -172,9 +276,16 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Video Demo',
+      title: 'ビデオ確認',
       home: Scaffold(
-        appBar: AppBar(title: Text('Playing Video',)),
+        appBar: AppBar(
+          title: Text('ビデオ確認',),
+          actions: [
+            IconButton(icon: Icon(Icons.flip), onPressed: () {
+              flipLr = !flipLr;
+              setState(() { });
+            })
+          ],),
         body: Center(
           child: _controller.value.initialized
               ? AspectRatio(
