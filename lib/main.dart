@@ -86,6 +86,37 @@ class _CameraTestPageState extends State<CameraTestPage> {
                   alignment: AlignmentDirectional.centerEnd,
                   child: IconButton(icon: Icon(Icons.switch_camera), color: Colors.white, onPressed: () => switchCamera()),
                 ),
+                Container(
+                  margin: EdgeInsets.all(8),
+                  child: AspectRatio(
+                    aspectRatio: 1.618,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white, width: 3),
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          CustomBoxShadow(
+                            color: Colors.black,
+                            blurRadius: 3.0,
+                            blurStyle: BlurStyle.outer
+                          )
+                        ]
+                      ),
+                      child: Center(
+                        child: Text('ここに身分証を提示', style: Theme.of(context).textTheme.headline4.copyWith(
+                          color: Colors.white,
+                          shadows: <Shadow>[
+                            Shadow(
+                              offset: Offset(0.0, 0.0),
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                            )
+                          ]),
+                        ),
+                      ),
+                    )
+                  ),
+                ),
                 Expanded(child: Container()),
                 Container(
                   padding: EdgeInsets.all(8),
@@ -192,7 +223,7 @@ class _CameraTestPageState extends State<CameraTestPage> {
   }
 
   Future<void> setCamera(CameraDescription description) async {
-    await recordOrStop(false);
+    await stopRecording();
     await controller?.dispose();
     if (description != null) {
       controller = CameraController(description, ResolutionPreset.medium, enableAudio: false);
@@ -207,7 +238,7 @@ class _CameraTestPageState extends State<CameraTestPage> {
   }
 
   Future<void> test() async {
-    await recordOrStop(true);
+    await _recordOrStop(true);
       final start = DateTime.now();
       procTimer = Timer.periodic(Duration(milliseconds: 300), (timer) async {
         final t = DateTime.now().difference(start);
@@ -219,8 +250,7 @@ class _CameraTestPageState extends State<CameraTestPage> {
 
         if (toStop) {
           // 撮影終了; チェック画面に遷移
-          procTimer?.cancel();
-          await recordOrStop(false);
+          await stopRecording();
           await Navigator.of(context).push(MaterialPageRoute(builder: (context) => CheckVideoPage(movieFile: recTempFile)));
           return;
         }
@@ -234,7 +264,14 @@ class _CameraTestPageState extends State<CameraTestPage> {
       });
   }
 
-  Future<void> recordOrStop(bool recording) async {
+  Future<void> stopRecording() async {
+    messages.value = '撮影中、ここに指示が出ます';
+    procTimer?.cancel();
+    procTimer = null;
+    await _recordOrStop(false);
+  }
+
+  Future<void> _recordOrStop(bool recording) async {
     if (controller?.value == null || controller.value.isRecordingVideo == recording) {
       return;
     }
@@ -314,5 +351,29 @@ class _CheckVideoPageState extends State<CheckVideoPage> {
   void dispose() {
     super.dispose();
     _controller.dispose();
+  }
+}
+
+class CustomBoxShadow extends BoxShadow {
+  final BlurStyle blurStyle;
+
+  const CustomBoxShadow({
+    Color color = const Color(0xFF000000),
+    Offset offset = Offset.zero,
+    double blurRadius = 0.0,
+    this.blurStyle = BlurStyle.normal,
+  }) : super(color: color, offset: offset, blurRadius: blurRadius);
+
+  @override
+  Paint toPaint() {
+    final Paint result = Paint()
+      ..color = color
+      ..maskFilter = MaskFilter.blur(this.blurStyle, blurSigma);
+    assert(() {
+      if (debugDisableShadows)
+        result.maskFilter = null;
+      return true;
+    }());
+    return result;
   }
 }
