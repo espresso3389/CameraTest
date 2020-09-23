@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:share/share.dart';
 import 'package:video_player/video_player.dart';
 
 void main() {
@@ -318,10 +319,13 @@ class _CheckVideoPageState extends State<CheckVideoPage> {
         appBar: AppBar(
           title: Text('ビデオ確認',),
           actions: [
-            IconButton(icon: Icon(Icons.flip), onPressed: () {
-              flipLr = !flipLr;
-              setState(() { });
-            })
+            // IconButton(icon: Icon(Icons.flip), onPressed: () {
+            //   flipLr = !flipLr;
+            //   setState(() { });
+            // })
+            IconButton(icon: Icon(Icons.share), onPressed: () {
+              Share.shareFiles([widget.movieFile.path]);
+            },)
           ],),
         body: Center(
           child: _controller.value.initialized
