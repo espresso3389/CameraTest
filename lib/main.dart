@@ -104,7 +104,7 @@ class _CameraTestPageState extends State<CameraTestPage> {
                         ]
                       ),
                       child: Center(
-                        child: Text('ここに身分証を提示', style: Theme.of(context).textTheme.headline4.copyWith(
+                        child: Text('テスト', style: Theme.of(context).textTheme.headline4.copyWith(
                           color: Colors.white,
                           shadows: <Shadow>[
                             Shadow(
