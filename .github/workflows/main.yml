@@ -33,6 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     #runs-on: [self-hosted, linux, x64]
     timeout-minutes: 20
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
     steps:
     - uses: actions/checkout@v2
@@ -88,6 +90,8 @@ jobs:
   build_ios:
     runs-on: macos-latest
     timeout-minutes: 30
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
     steps:
     - uses: actions/checkout@v2
